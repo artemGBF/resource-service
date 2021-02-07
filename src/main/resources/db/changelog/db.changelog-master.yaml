@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      relativeToChangelogFile: true
+      file: user/changelogUser.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: good/changelogGood.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: cart/changelogCart.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: order/changelogOrder.yaml

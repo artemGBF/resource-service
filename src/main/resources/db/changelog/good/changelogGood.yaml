@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      relativeToChangelogFile: true
+      file: category.sql
+  - include:
+      relativeToChangelogFile: true
+      file: good.sql
+  - include:
+      relativeToChangelogFile: true
+      file: stockpile.sql
+  - include:
+      relativeToChangelogFile: true
+      file: good_stock.sql

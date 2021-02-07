@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      relativeToChangelogFile: true
+      file: carts.sql
+  - include:
+      relativeToChangelogFile: true
+      file: carts_goods.sql
