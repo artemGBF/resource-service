@@ -9,6 +9,7 @@ public interface GoodStockRepository extends CrudRepository<GoodStock, Long> {
 
     @Query("select distinct case when gc.count > :count then 1 else 0 end as value" +
             " from good_stock gc where gc.id_good = :idGood and gc.id_stock=:idStock")
-    boolean check(@Param("idStock") Long idStock, @Param("idGood") Long idGood,
+    Boolean check(@Param("idStock") Long idStock, @Param("idGood") Long idGood,
                   @Param("count") Integer count);
+
 }

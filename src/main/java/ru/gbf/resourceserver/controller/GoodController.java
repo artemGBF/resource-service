@@ -41,9 +41,10 @@ public class GoodController {
         return goodService.save(good);
     }
 
-    @PutMapping("/{id}")
-    public Good update(@PathVariable Long id, @RequestBody Good good) {
-        return goodService.update(id, good);
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Good update(@RequestBody Good good) {
+        return goodService.update(good);
     }
 
     @DeleteMapping

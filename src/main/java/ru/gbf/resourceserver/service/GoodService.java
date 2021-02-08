@@ -24,9 +24,9 @@ public class GoodService {
         return goodRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Товар", id));
     }
 
-    public Good save(Good Good) {
-        if (Good.getId() == null) {
-            return goodRepository.save(Good);
+    public Good save(Good good) {
+        if (good.getId() == null) {
+            return goodRepository.save(good);
         }
         return null;
     }
@@ -35,9 +35,10 @@ public class GoodService {
         this.goodRepository.deleteById(id);
     }
 
-    //@Transactional
-    public Good update(Long id, Good Good) {
-        goodRepository.update(id, Good.getName(), Good.getPrice(), Good.getCategoryID());
-        return goodRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(Good.getName(), id));
+    public Good update(Good good) {
+        if (good.getId() == null) {
+            return save(good);
+        }
+        return goodRepository.save(good);
     }
 }

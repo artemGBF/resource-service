@@ -10,16 +10,23 @@ import java.util.stream.Collectors;
 @Component
 public class GoodStockMapper {
 
-    public GoodStockDto toDto(GoodStock goodStock){
+    public GoodStockDto toDto(GoodStock goodStock) {
         return new GoodStockDto(
-                goodStock.getId(),
                 goodStock.getIdGood(),
                 goodStock.getIdStock(),
                 goodStock.getCount()
         );
     }
 
-    public List<GoodStockDto> toDtos(List<GoodStock> goodStock){
+    public List<GoodStockDto> toDtos(List<GoodStock> goodStock) {
         return goodStock.stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    public GoodStock toEntity(GoodStockDto dto){
+        return new GoodStock(
+                dto.getIdGood(),
+                dto.getIdStock(),
+                dto.getCount()
+        );
     }
 }
