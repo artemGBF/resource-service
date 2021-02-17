@@ -4,4 +4,4 @@ databaseChangeLog:
       file: carts.sql
   - include:
       relativeToChangelogFile: true
-      file: carts_goods.sql
+      file: cart_good.sql

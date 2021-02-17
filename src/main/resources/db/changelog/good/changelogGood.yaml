@@ -10,4 +10,4 @@ databaseChangeLog:
       file: stockpile.sql
   - include:
       relativeToChangelogFile: true
-      file: good_stock.sql
+      file: stock_good.sql

@@ -1,8 +1,8 @@
 package ru.gbf.resourceserver.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.gbf.resourceserver.dto.GoodStockDto;
-import ru.gbf.resourceserver.model.GoodStock;
+import ru.gbf.resourceserver.dto.StockGoodDto;
+import ru.gbf.resourceserver.model.StockGood;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,20 +10,20 @@ import java.util.stream.Collectors;
 @Component
 public class GoodStockMapper {
 
-    public GoodStockDto toDto(GoodStock goodStock) {
-        return new GoodStockDto(
-                goodStock.getIdGood(),
-                goodStock.getIdStock(),
-                goodStock.getCount()
+    public StockGoodDto toDto(StockGood stockGood) {
+        return new StockGoodDto(
+                stockGood.getIdGood(),
+                stockGood.getIdStock(),
+                stockGood.getCount()
         );
     }
 
-    public List<GoodStockDto> toDtos(List<GoodStock> goodStock) {
-        return goodStock.stream().map(this::toDto).collect(Collectors.toList());
+    public List<StockGoodDto> toDtos(List<StockGood> stockGood) {
+        return stockGood.stream().map(this::toDto).collect(Collectors.toList());
     }
 
-    public GoodStock toEntity(GoodStockDto dto){
-        return new GoodStock(
+    public StockGood toEntity(StockGoodDto dto){
+        return new StockGood(
                 dto.getIdGood(),
                 dto.getIdStock(),
                 dto.getCount()

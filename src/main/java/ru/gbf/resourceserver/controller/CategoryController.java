@@ -1,5 +1,6 @@
 package ru.gbf.resourceserver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +22,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
+    @Operation(summary = "Получение всех категорий")
     public List<Category> getAll() {
         return categoryService.getAll();
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Получение категории по id")
     public Category findById(@PathVariable Long id) {
         throw new MethodNotAllowedException(HttpMethod.GET, Collections.singleton(HttpMethod.GET));
     }
