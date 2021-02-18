@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StockGoodDto {
-
     private Long idGood;
     private Long idStock;
     private Integer count;

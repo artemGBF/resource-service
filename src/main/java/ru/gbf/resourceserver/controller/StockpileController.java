@@ -11,6 +11,7 @@ import ru.gbf.resourceserver.dto.StockGoodDto;
 import ru.gbf.resourceserver.service.StockGoodService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/stockpile")
@@ -24,9 +25,14 @@ public class StockpileController {
      * @param dto
      * @return
      */
-    @PostMapping("/check")
+    @PostMapping("/checkCount")
     public Long getAllGoodsOfStock(@RequestBody StockGoodDto dto) {
         return stockGoodService.check(dto);
+    }
+
+    @PostMapping("/checkAllCount")
+    public Map<Long, Integer> checkFromStock(@RequestBody List<Long> ids) {
+        return stockGoodService.checkAll(ids);
     }
 
     /**

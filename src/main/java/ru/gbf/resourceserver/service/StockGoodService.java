@@ -7,6 +7,7 @@ import ru.gbf.resourceserver.dto.StockGoodDto;
 import ru.gbf.resourceserver.mapper.GoodStockMapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,5 +26,9 @@ public class StockGoodService {
 
     public void order(List<StockGoodDto> dto){
         stockGoodDao.order(dto.stream().map(mapper::toEntity).collect(Collectors.toList()));
+    }
+
+    public Map<Long, Integer> checkAll(List<Long> ids) {
+        return stockGoodDao.checkAll(ids);
     }
 }
