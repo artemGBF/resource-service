@@ -7,13 +7,11 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class GoodDTO implements Serializable {
-    private Long id;
-    private String name;
-    private Integer price;
-    private Long category;
+@AllArgsConstructor
+public abstract class EmailDto implements Serializable {
+    private String to;
 }

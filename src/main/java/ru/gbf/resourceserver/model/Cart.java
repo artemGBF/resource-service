@@ -8,18 +8,17 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.io.Serializable;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Table("category")
-public class Category {
+@Table("carts")
+public class Cart {
     @Id
     private Long id;
-    private String name;
-    @Column("parent_id")
-    private Long idParentCategory;
-
+    private String uuid;
+    @Column("id_user")
+    private Long idUser;
+    @Column("is_active")
+    private boolean isActive;
 }

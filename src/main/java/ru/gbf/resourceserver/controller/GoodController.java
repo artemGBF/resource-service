@@ -2,6 +2,7 @@ package ru.gbf.resourceserver.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.gbf.resourceserver.dto.GoodDTO;
 import ru.gbf.resourceserver.model.Good;
 import ru.gbf.resourceserver.service.GoodService;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -25,31 +28,51 @@ import java.util.Collection;
 public class GoodController {
 
     private final GoodService goodService;
+    private final ModelMapper mapper;
 
     @GetMapping
     @Operation(summary = "Получение всех товаров данной категории")
-    public ResponseEntity<Collection<Good>> getAllByCategory(@Param("idCategory") Long idCategory) {
-        return ResponseEntity.ok(goodService.findAllByCategory(idCategory));
+    public ResponseEntity<List<GoodDTO>> getAllByCategory(@Param("idCategory") Long idCategory) {
+        return ResponseEntity.ok(
+                goodService.findAllByCategory(idCategory).stream()
+                        .map(m -> mapper.map(m, GoodDTO.class))
+                        .collect(Collectors.toList())
+        );
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получение товара по id")
-    public Good getById(@PathVariable Long id) {
-        return goodService.findById(id);
+    public GoodDTO getById(@PathVariable Long id) {
+        return mapper.map(
+                goodService.findById(id),
+                GoodDTO.class
+        );
+    }
+
+    @GetMapping("/ids")
+    @Operation(summary = "Получение товара по id")
+    public List<GoodDTO> getByIds(@RequestBody List<Long> ids) {
+        return goodService.findByIds(ids).stream()
+                .map(m -> mapper.map(m, GoodDTO.class))
+                .collect(Collectors.toList());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Создание продукта")
-    public Good create(@RequestBody Good good) {
-        return goodService.save(good);
+    public GoodDTO create(@RequestBody GoodDTO good) {
+        return mapper.map(
+                goodService.save(mapper.map(good, Good.class)),
+                GoodDTO.class);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Обновление продукта")
-    public Good update(@RequestBody Good good) {
-        return goodService.update(good);
+    public GoodDTO update(@RequestBody Good good) {
+        return mapper.map(
+                goodService.update(mapper.map(good, Good.class)),
+                GoodDTO.class);
     }
 
     @DeleteMapping

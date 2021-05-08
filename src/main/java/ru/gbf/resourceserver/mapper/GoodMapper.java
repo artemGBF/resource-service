@@ -12,7 +12,7 @@ public class GoodMapper {
                 goodDTO.getId(),
                 goodDTO.getName(),
                 goodDTO.getPrice(),
-                goodDTO.getCategory().getId()
+                goodDTO.getCategory()
         );
     }
 }

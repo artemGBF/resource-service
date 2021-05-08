@@ -1,4 +1,4 @@
-package ru.gbf.resourceserver.repository;
+package ru.gbf.resourceserver.dao;
 
 
 import org.springframework.data.jdbc.repository.query.Modifying;

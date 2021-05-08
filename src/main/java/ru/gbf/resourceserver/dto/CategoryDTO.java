@@ -1,4 +1,4 @@
-package ru.gbf.resourceserver.model;
+package ru.gbf.resourceserver.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,16 +10,12 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@Table("category")
-public class Category {
-    @Id
+@AllArgsConstructor
+@NoArgsConstructor
+public class CategoryDTO implements Serializable {
     private Long id;
     private String name;
-    @Column("parent_id")
     private Long idParentCategory;
-
 }
