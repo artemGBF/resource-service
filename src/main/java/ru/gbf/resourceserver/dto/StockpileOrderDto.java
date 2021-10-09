@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.gbf.resourceserver.model.CartGood;
 import ru.gbf.resourceserver.types.DeliveryType;
 
 import java.util.List;
@@ -16,5 +15,5 @@ import java.util.List;
 public class StockpileOrderDto {
     private String address;
     private DeliveryType deliveryType;
-    private List<CartGoodDto> cartGoodList;
+    private List<OrderGoodsDTO> cartGoodList;
 }

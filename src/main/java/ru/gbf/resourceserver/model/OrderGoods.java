@@ -9,8 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CartGood {
-    private Long idCart;
-    private Long idGood;
+public class OrderGoods {
+    private Long orderId;
+    private Long goodId;
     private int count;
 }

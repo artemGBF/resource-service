@@ -3,7 +3,7 @@ package ru.gbf.resourceserver.meta;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import ru.gbf.resourceserver.dto.CreateOrderEmailDto;
+import ru.gbf.resourceserver.dto.emails.CreateOrderEmailDto;
 import ru.gbf.resourceserver.dto.GoodDTO;
 
 import java.io.IOException;
@@ -26,9 +26,8 @@ public class CreateOrderEmailDtoSerializer extends StdSerializer<CreateOrderEmai
         gen.writeStartObject();
 
         gen.writeStringField("to", createOrderEmailDto.getTo());
-        gen.writeStringField("number", createOrderEmailDto.getNumber());
         gen.writeStringField("delivery", createOrderEmailDto.getDelivery());
-        gen.writeNumberField("idCart", createOrderEmailDto.getIdCart());
+        gen.writeNumberField("idCart", createOrderEmailDto.getOrderId());
 
         Map<GoodDTO, Integer> value = createOrderEmailDto.getGoods();
 

@@ -17,8 +17,7 @@ public class Cart {
     @Id
     private Long id;
     private String uuid;
-    @Column("id_user")
-    private Long idUser;
+
     @Column("is_active")
     private boolean isActive;
 }

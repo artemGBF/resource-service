@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - include:
-      relativeToChangelogFile: true
-      file: carts.sql
-  - include:
-      relativeToChangelogFile: true
-      file: cart_good.sql

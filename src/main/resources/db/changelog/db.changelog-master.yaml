@@ -1,13 +1,7 @@
 databaseChangeLog:
   - include:
       relativeToChangelogFile: true
-      file: user/changelogUser.yaml
+      file: dump.sql
   - include:
       relativeToChangelogFile: true
-      file: good/changelogGood.yaml
-  - include:
-      relativeToChangelogFile: true
-      file: cart/changelogCart.yaml
-  - include:
-      relativeToChangelogFile: true
-      file: order/changelogOrder.yaml
+      file: dump-fill.sql

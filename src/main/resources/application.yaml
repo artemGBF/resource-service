@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  liquibase:
+    enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5430/online-shop
+    username: postgres
+    password: postgres
+  activemq:
+    broker-url: tcp://localhost:60000
+    user: admin
+    password: admin
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+queue:
+  email: Emails
+  route: Routes

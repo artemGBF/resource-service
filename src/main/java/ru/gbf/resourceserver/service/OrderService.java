@@ -3,21 +3,23 @@ package ru.gbf.resourceserver.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.relational.core.sql.In;
+import org.springframework.http.HttpEntity;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import ru.gbf.resourceserver.dao.CartGoodDao;
+import ru.gbf.resourceserver.dao.OrderRepository;
+import ru.gbf.resourceserver.dto.AddItemsDTO;
 import ru.gbf.resourceserver.dto.CountDto;
-import ru.gbf.resourceserver.dto.CreateOrderEmailDto;
-import ru.gbf.resourceserver.dto.GoodDTO;
 import ru.gbf.resourceserver.dto.OrderDTO;
+import ru.gbf.resourceserver.dto.emails.CreateOrderEmailDto;
+import ru.gbf.resourceserver.dto.GoodDTO;
 import ru.gbf.resourceserver.dto.StockGoodDto;
 import ru.gbf.resourceserver.errors.ResourceLackException;
-import ru.gbf.resourceserver.model.CartGood;
+import ru.gbf.resourceserver.model.OrderGoods;
 import ru.gbf.resourceserver.model.Good;
 import ru.gbf.resourceserver.model.Order;
-import ru.gbf.resourceserver.dao.OrderRepository;
+import ru.gbf.resourceserver.model.StockGood;
 import ru.gbf.resourceserver.types.OrderStatus;
 
 import java.net.URISyntaxException;
@@ -26,7 +28,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,25 +35,87 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository repository;
-    private final CartService cartService;
     private final GoodService goodService;
     private final JmsTemplate jmsTemplate;
+    private final CartGoodDao dao;
     private final ModelMapper mapper;
-    @Value("${email.queue}")
+    @Value("${queue.email}")
     private String emailQueue;
-    @Value("${order.queue}")
-    private String orderQueue;
+    @Value("${queue.route}")
+    private String routeQueue;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public Order create(OrderDTO dto) throws URISyntaxException {
-        List<CartGood> goods = cartService.getAllFromCart(dto.getIdCart()).getCartGood();
+    public Order createOrGet(Long idUser) {
+        return repository.findByIdAndActiveTrue(idUser).orElse(
+                repository.save(Order.builder().idUser(idUser).status(OrderStatus.CREATED).build())
+        );
+    }
 
-        List<Long> collect = goods.stream().map(CartGood::getIdGood).collect(Collectors.toList());
+    public void addGood(Long idGood, Long idCart) {
+        StockGood stockGood = new StockGood(
+                idGood,
+                1L,
+                1
+        );
+
+        CountDto count = restTemplate.postForObject(
+                "http://localhost:8082/api/stockpile/checkCount",
+                stockGood,
+                CountDto.class,
+                (Object) null);
+
+        if (count.getCount() == 0) {
+            throw new ResourceLackException();
+        }
+        dao.fill(List.of(new OrderGoods(
+                        idGood,
+                        idCart,
+                        1
+                ))
+        );
+    }
+
+    public void addGoods(AddItemsDTO dto) {
+        HttpEntity<StockGood> httpEntity = new HttpEntity<>(
+                new StockGood(
+                        dto.getIdGood(),
+                        1L,
+                        dto.getCount()
+                )
+        );
+        CountDto aLong = restTemplate.postForObject(
+                "http://localhost:8082/api/stockpile/checkCount",
+                httpEntity,
+                CountDto.class,
+                (Object) null);
+        if (aLong.getCount() - dto.getCount() <= 0) {
+            throw new ResourceLackException(dto.getCount());
+        }
+        dao.fill(List.of(new OrderGoods(
+                        dto.getIdCart(),
+                        dto.getIdGood(),
+                        dto.getCount()
+                ))
+        );
+    }
+
+    public List<OrderGoods> getGoods(Long idOrder) {
+        return dao.getAllByIdCartEquals(idOrder);
+    }
+
+    public void clear(Long orderId) {
+        dao.clear(orderId);
+    }
+
+    public Order createOrGet(Order order) throws URISyntaxException {
+        List<OrderGoods> goods = getGoods(order.getId());
+
+        List<Long> collect = goods.stream().map(OrderGoods::getGoodId).collect(Collectors.toList());
         List<CountDto> countOfGoods = getCountOfGoods(collect);
 
         for (int i = 0; i < goods.size(); i++) {
-            Long idGood = goods.get(i).getIdGood();
+            Long idGood = goods.get(i).getGoodId();
             int count = goods.get(i).getCount();
             if (countOfGoods.get(i).getCount() < count) {
                 throw new ResourceLackException(idGood, count);
@@ -61,68 +124,68 @@ public class OrderService {
 
         List<Good> byIds = goodService.findByIds(collect);
 
-        Map<GoodDTO, Integer> emailMap = createEmailMap(byIds, goods);
+        Map<GoodDTO, Integer> goodCountMap = createEmailMap(byIds, goods);
 
-        cartService.clear(dto.getIdCart());
+        clear(order.getId());
 
-        Order newOrder = repository.save(new Order(
-                        null,
-                        UUID.randomUUID().toString(),
-                        dto.getIdUser(),
-                        dto.getIdCart(),
-                        dto.getDeliveryType(),
-                        dto.getPayType(),
-                        OrderStatus.PAYED
-                )
+        Order newOrder = repository.save(new Order(null,
+                order.getIdUser(),
+                order.getDelivery(),
+                order.getPaymentType(),
+                OrderStatus.PAYED,
+                true,
+                order.getOriginAddr(),
+                order.getDestinationAddr())
         );
 
         orderGoodsFromStockpile(goods);
 
-        //sendToQueue(orderQueue, dto, newOrder);
-        sendToQueue(emailQueue, dto, newOrder, emailMap);
+        sendToQueue(routeQueue, order, null);
+        sendToQueue(emailQueue, order, goodCountMap);
         return newOrder;
     }
 
-    private Map<GoodDTO, Integer> createEmailMap(List<Good> goods, List<CartGood> cartGoods) {
+    private Map<GoodDTO, Integer> createEmailMap(List<Good> goods, List<OrderGoods> orderGoodsList) {
         Map<GoodDTO, Integer> emailMap = new HashMap<>();
         for (int i = 0; i < goods.size(); i++) {
             Good good = goods.get(i);
             int count = 0;
-            for (int j = 0; j < cartGoods.size(); j++) {
-                CartGood cartGood = cartGoods.get(j);
-                if (cartGood.getIdGood().equals(good.getId())) {
-                    count = cartGood.getCount();
+            for (int j = 0; j < orderGoodsList.size(); j++) {
+                OrderGoods orderGoods = orderGoodsList.get(j);
+                if (orderGoods.getGoodId().equals(good.getId())) {
+                    count = orderGoods.getCount();
                     break;
                 }
             }
-            emailMap.put(
-                    mapper.map(good, GoodDTO.class),
-                    count
-            );
+            emailMap.put(mapper.map(good, GoodDTO.class), count);
         }
         return emailMap;
     }
 
-    private void sendToQueue(String queue, OrderDTO dto, Order newOrder, Map<GoodDTO, Integer> map) {
-        jmsTemplate.convertAndSend(queue, new CreateOrderEmailDto(
-                "Emails",
-                newOrder.getUuid(),
-                newOrder.getDelivery().name(),
-                dto.getIdCart(),
-                map
-        ));
+    private void sendToQueue(String queue, Order order, Map<GoodDTO, Integer> map) {
+        if (queue.equals("Emails")) {
+            jmsTemplate.convertAndSend(queue, new CreateOrderEmailDto(
+                    "Emails",
+                    order.getDelivery().name(),
+                    order.getId(),
+                    map
+            ));
+        }
+        if (queue.equals("Routes")) {
+            jmsTemplate.convertAndSend(queue, mapper.map(order, OrderDTO.class));
+        }
     }
 
     //todo yandex.maps via address
-    private void orderGoodsFromStockpile(List<CartGood> goods) {
+    private void orderGoodsFromStockpile(List<OrderGoods> goods) {
         List<StockGoodDto> stockGoodDtos = new ArrayList<>();
         for (int i = 0; i < goods.size(); i++) {
-            CartGood cartGood = goods.get(i);
+            OrderGoods orderGoods = goods.get(i);
             stockGoodDtos.add(
                     new StockGoodDto(
-                            cartGood.getIdGood(),
+                            orderGoods.getGoodId(),
                             1L,
-                            cartGood.getCount()
+                            orderGoods.getCount()
                     )
             );
         }

@@ -26,18 +26,15 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @RequestMapping("/api/goods")
 public class GoodController {
-
     private final GoodService goodService;
     private final ModelMapper mapper;
 
     @GetMapping
     @Operation(summary = "Получение всех товаров данной категории")
-    public ResponseEntity<List<GoodDTO>> getAllByCategory(@Param("idCategory") Long idCategory) {
-        return ResponseEntity.ok(
-                goodService.findAllByCategory(idCategory).stream()
+    public List<GoodDTO> getAllByCategory(@Param("idCategory") Long idCategory) {
+        return goodService.findAllByCategory(idCategory).stream()
                         .map(m -> mapper.map(m, GoodDTO.class))
-                        .collect(Collectors.toList())
-        );
+                        .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

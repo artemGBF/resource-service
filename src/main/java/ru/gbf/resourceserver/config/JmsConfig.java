@@ -5,10 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
-import ru.gbf.resourceserver.dto.CategoryDTO;
-import ru.gbf.resourceserver.dto.CreateOrderEmailDto;
 import ru.gbf.resourceserver.dto.GoodDTO;
-import ru.gbf.resourceserver.model.Category;
+import ru.gbf.resourceserver.dto.emails.CreateOrderEmailDto;
 
 import java.util.HashMap;
 import java.util.Map;

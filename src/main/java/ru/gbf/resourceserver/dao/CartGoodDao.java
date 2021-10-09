@@ -3,7 +3,7 @@ package ru.gbf.resourceserver.dao;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.gbf.resourceserver.model.CartGood;
+import ru.gbf.resourceserver.model.OrderGoods;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,55 +15,47 @@ public class CartGoodDao {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    private Map<String, Object>[] init(List<CartGood> list) {
-        Map<String, Object>[] params = new Map[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            params[i] = new HashMap<>();
-            CartGood cartGood = list.get(i);
-            params[i].put("cart", cartGood.getIdCart());
-            params[i].put("good", cartGood.getIdGood());
-            params[i].put("count", cartGood.getCount());
-        }
-        return params;
-    }
-
-    public void fill(List<CartGood> collect) {
+    public void fill(List<OrderGoods> collect) {
         Map<String, Object>[] init = init(collect);
         jdbcTemplate.batchUpdate(
-                "INSERT INTO cart_good VALUES (:cart, :good, :count)" +
-                        "ON CONFLICT(id_cart, id_good) DO UPDATE SET count = :count + " +
-                        "(select count from cart_good cd where cd.id_good = :good and cd.id_cart = :cart);",
+                "INSERT INTO xref_order_2_good VALUES (:order, :good, :count)" +
+                        "ON CONFLICT(order_id, good_id) DO UPDATE SET count = :count + " +
+                        "(select count from xref_order_2_good cd where cd.good_id = :good and cd.order_id = :cart);",
                 init
         );
     }
 
-    public void clear(Long idCart) {
-        Map<String, Object> init = Map.of("cart", idCart);
+    public void clear(Long orderId) {
+        Map<String, Object> init = Map.of("orderId", orderId);
         jdbcTemplate.update(
-                "delete from cart_good where id_cart = :cart;",
+                "delete from xref_order_2_good where order_id = :orderId;",
                 init
         );
     }
 
-    public void activate(Long idUser) {
-        Map<String, Object> init = Map.of("user", idUser);
-        jdbcTemplate.update(
-                "update carts set is_active = true where id_user=:user",
-                init
-        );
-    }
-
-    public List<CartGood> getAllByIdCartEquals(Long idCart) {
+    public List<OrderGoods> getAllByIdCartEquals(Long orderId) {
         Map<String, Long> init = new HashMap<>();
-        init.put("cart", idCart);
+        init.put("orderId", orderId);
         return jdbcTemplate.query(
-                "select * from cart_good where id_cart=:cart",
+                "select * from xref_order_2_good where order_id=:orderId",
                 init,
-                (resultSet, i) -> new CartGood(
-                        resultSet.getLong("id_cart"),
-                        resultSet.getLong("id_good"),
+                (resultSet, i) -> new OrderGoods(
+                        resultSet.getLong("order_id"),
+                        resultSet.getLong("good_id"),
                         resultSet.getInt("count")
                 )
         );
+    }
+
+    private Map<String, Object>[] init(List<OrderGoods> list) {
+        Map<String, Object>[] params = new Map[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            params[i] = new HashMap<>();
+            OrderGoods orderGoods = list.get(i);
+            params[i].put("order", orderGoods.getOrderId());
+            params[i].put("good", orderGoods.getGoodId());
+            params[i].put("count", orderGoods.getCount());
+        }
+        return params;
     }
 }
