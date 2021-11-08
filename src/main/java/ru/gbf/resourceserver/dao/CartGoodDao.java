@@ -18,9 +18,9 @@ public class CartGoodDao {
     public void fill(List<OrderGoods> collect) {
         Map<String, Object>[] init = init(collect);
         jdbcTemplate.batchUpdate(
-                "INSERT INTO xref_order_2_good VALUES (:order, :good, :count)" +
+                "INSERT INTO xref_order_2_goods VALUES (:order, :good, :count)" +
                         "ON CONFLICT(order_id, good_id) DO UPDATE SET count = :count + " +
-                        "(select count from xref_order_2_good cd where cd.good_id = :good and cd.order_id = :cart);",
+                        "(select count from xref_order_2_goods cd where cd.good_id = :good and cd.order_id = :order);",
                 init
         );
     }
@@ -28,7 +28,7 @@ public class CartGoodDao {
     public void clear(Long orderId) {
         Map<String, Object> init = Map.of("orderId", orderId);
         jdbcTemplate.update(
-                "delete from xref_order_2_good where order_id = :orderId;",
+                "delete from xref_order_2_goods where order_id = :orderId;",
                 init
         );
     }
@@ -37,7 +37,7 @@ public class CartGoodDao {
         Map<String, Long> init = new HashMap<>();
         init.put("orderId", orderId);
         return jdbcTemplate.query(
-                "select * from xref_order_2_good where order_id=:orderId",
+                "select * from xref_order_2_goods where order_id=:orderId",
                 init,
                 (resultSet, i) -> new OrderGoods(
                         resultSet.getLong("order_id"),

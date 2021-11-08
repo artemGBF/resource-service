@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CountDto {
-    private Long idGood;
+    private Long goodId;
     private Long count;
 }

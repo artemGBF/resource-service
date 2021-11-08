@@ -52,9 +52,9 @@ public class OrderService {
         );
     }
 
-    public void addGood(Long idGood, Long idCart) {
+    public void addGood(Long goodId, Long orderId) {
         StockGood stockGood = new StockGood(
-                idGood,
+                goodId,
                 1L,
                 1
         );
@@ -69,8 +69,8 @@ public class OrderService {
             throw new ResourceLackException();
         }
         dao.fill(List.of(new OrderGoods(
-                        idGood,
-                        idCart,
+                        orderId,
+                        goodId,
                         1
                 ))
         );
@@ -79,7 +79,7 @@ public class OrderService {
     public void addGoods(AddItemsDTO dto) {
         HttpEntity<StockGood> httpEntity = new HttpEntity<>(
                 new StockGood(
-                        dto.getIdGood(),
+                        dto.getGoodId(),
                         1L,
                         dto.getCount()
                 )
@@ -93,8 +93,8 @@ public class OrderService {
             throw new ResourceLackException(dto.getCount());
         }
         dao.fill(List.of(new OrderGoods(
-                        dto.getIdCart(),
-                        dto.getIdGood(),
+                        dto.getCartId(),
+                        dto.getGoodId(),
                         dto.getCount()
                 ))
         );

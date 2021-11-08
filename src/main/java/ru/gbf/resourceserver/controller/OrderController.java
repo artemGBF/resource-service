@@ -19,7 +19,6 @@ import ru.gbf.resourceserver.model.Order;
 import ru.gbf.resourceserver.model.OrderGoods;
 import ru.gbf.resourceserver.service.OrderService;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +49,7 @@ public class OrderController {
     @PostMapping("/addFirstItem")
     @Operation(summary = "Первичное добавление товара")
     public void addFirstItem(@RequestBody AddItemsDTO good) {
-        orderService.addGood(good.getIdGood(), good.getIdCart());
+        orderService.addGood(good.getGoodId(), good.getCartId());
     }
 
     @PostMapping("/addBatchItems")
@@ -63,8 +62,8 @@ public class OrderController {
     @PatchMapping("/clear")
     @ResponseStatus(HttpStatus.RESET_CONTENT)
     @Operation(summary = "Очищение корзины")
-    public void clear(@RequestBody Long idCart) {
-        orderService.clear(idCart);
+    public void clear(@RequestBody Long cartId) {
+        orderService.clear(cartId);
     }
 
     @PostMapping

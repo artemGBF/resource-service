@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.MethodNotAllowedException;
 import ru.gbf.resourceserver.dto.CategoryDTO;
-import ru.gbf.resourceserver.model.Category;
 import ru.gbf.resourceserver.service.CategoryService;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("api/categories")
+@RequestMapping(value = "api/categories", produces = "application/json")
 @AllArgsConstructor
 public class CategoryController {
 

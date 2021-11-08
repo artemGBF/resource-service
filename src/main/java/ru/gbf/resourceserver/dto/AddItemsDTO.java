@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddItemsDTO {
-    private Long idGood;
-    private Long idCart;
+    private Long goodId;
+    private Long cartId;
     private Integer count;
 }
